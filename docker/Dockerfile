@@ -24,4 +24,3 @@ RUN chown -R www-data:www-data /var/www/html \
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s \
     CMD curl -f http://localhost || exit 1
-
