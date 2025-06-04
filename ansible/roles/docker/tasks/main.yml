@@ -23,4 +23,4 @@
     docker service create --name yii2_app --publish 8080:80 \
     --replicas 1 --detach=true \
     --restart-condition any \
-    yourdockerhubuser/yii2-app:latest || true
+    alwn3/yii2-app:latest || true
