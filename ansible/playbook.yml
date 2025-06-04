@@ -1,0 +1,40 @@
+[⚠️ Suspicious Content] ---
+- name: Deploy Yii2 app
+  hosts: web
+  become: true
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - nginx
+          - git
+        update_cache: true
+        state: present
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Initialize Docker Swarm
+      shell: docker swarm init || true
+
+    - name: Copy nginx config
+      copy:
+        src: ../nginx/yii2.conf
+        dest: /etc/nginx/sites-available/yii2.conf
+
+    - name: Enable nginx site
+      file:
+        src: /etc/nginx/sites-available/yii2.conf
+        dest: /etc/nginx/sites-enabled/yii2.conf
+        state: link
+        force: true
+
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
