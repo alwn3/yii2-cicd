@@ -1,4 +1,4 @@
-[⚠️ Suspicious Content] ---
+---
 - name: Deploy Yii2 app
   hosts: web
   become: true
