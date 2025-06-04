@@ -2,8 +2,8 @@ FROM php:8.1-apache
 
 # Install dependencies and composer
 RUN apt-get update && apt-get install -y \
-    git zip unzip libzip-dev libpq-dev libonig-dev curl \
-    && docker-php-ext-install pdo pdo_mysql zip \
+    git zip unzip libzip-dev libpq-dev libonig-dev libicu-dev \
+    && docker-php-ext-install pdo pdo_mysql zip mbstring intl \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Enable Apache mod_rewrite
