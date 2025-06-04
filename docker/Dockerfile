@@ -1,9 +1,10 @@
 FROM php:8.1-apache
 
-# Install dependencies
+# Install dependencies and composer
 RUN apt-get update && apt-get install -y \
-    git zip unzip libzip-dev libpq-dev libonig-dev \
-    && docker-php-ext-install pdo pdo_mysql zip
+    git zip unzip libzip-dev libpq-dev libonig-dev curl \
+    && docker-php-ext-install pdo pdo_mysql zip \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -13,6 +14,9 @@ WORKDIR /var/www/html
 
 # Copy app source code
 COPY ./src/ /var/www/html
+
+# Run composer install
+RUN composer install --no-dev --optimize-autoloader
 
 # Change Apache DocumentRoot to /var/www/html/web
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/web|' /etc/apache2/sites-available/000-default.conf \
