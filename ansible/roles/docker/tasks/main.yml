@@ -1,0 +1,26 @@
+---
+- name: Install Docker
+  apt:
+    name: docker.io
+    state: present
+
+- name: Install Docker Compose
+  apt:
+    name: docker-compose
+    state: present
+
+- name: Enable and start Docker
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Initialize Docker Swarm
+  shell: docker swarm init || true
+
+- name: Deploy Yii2 App as Swarm Service
+  shell: |
+    docker service create --name yii2_app --publish 8080:80 \
+    --replicas 1 --detach=true \
+    --restart-condition any \
+    yourdockerhubuser/yii2-app:latest || true

@@ -1,0 +1,27 @@
+---
+- name: Install NGINX
+  apt:
+    name: nginx
+    state: present
+
+- name: Copy nginx config
+  copy:
+    src: ../../../../nginx/yii2.conf
+    dest: /etc/nginx/sites-available/yii2.conf
+
+- name: Enable nginx site
+  file:
+    src: /etc/nginx/sites-available/yii2.conf
+    dest: /etc/nginx/sites-enabled/yii2.conf
+    state: link
+    force: true
+
+- name: Remove default nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
