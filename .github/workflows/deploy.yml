@@ -7,7 +7,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/yii2-app
+      IMAGE_NAME: alwn3/yii2-app
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
