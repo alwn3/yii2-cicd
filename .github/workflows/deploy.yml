@@ -36,5 +36,14 @@ jobs:
           username: root
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker service update --image ${{ env.IMAGE_NAME }}:latest yii2_app || \
-            docker service create --name yii2_app --publish 8080:80 ${{ env.IMAGE_NAME }}:latest
+            SERVICE_NAME=yii2_app
+            IMAGE=${{ env.IMAGE_NAME }}:latest
+
+            echo "Checking if Docker service $SERVICE_NAME exists..."
+            if docker service ls --filter name=$SERVICE_NAME --format '{{.Name}}' | grep -q $SERVICE_NAME; then
+              echo "Service exists. Updating with new image..."
+              docker service update --image $IMAGE --force $SERVICE_NAME
+            else
+              echo "Service does not exist. Creating it..."
+              docker service create --name $SERVICE_NAME --publish 8080:80 $IMAGE
+            fi
