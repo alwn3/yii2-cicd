@@ -1,31 +1,47 @@
 FROM php:8.2-apache
 
-# Install dependencies and composer
+# Install required system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
+<<<<<<< HEAD
     git zip unzip libzip-dev libpq-dev libonig-dev libicu-dev \
     && docker-php-ext-install pdo pdo_mysql zip mbstring intl \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+=======
+    git zip unzip libzip-dev libpq-dev libonig-dev curl \
+    && docker-php-ext-install pdo pdo_mysql zip
+>>>>>>> 296efe8 (site worked in docker run expose)
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Set working directory (Yii2 root)
+# Configure Apache DocumentRoot to /var/www/html/web
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/web|' /etc/apache2/sites-available/000-default.conf \
+    && echo '<Directory "/var/www/html/web">\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>' >> /etc/apache2/apache2.conf
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy app source code
+# Copy source code
 COPY ./src/ /var/www/html
 
-# Run composer install
-RUN composer install --no-dev --optimize-autoloader
+# Clean old dependencies
+RUN rm -rf /var/www/html/vendor /var/www/html/composer.lock
 
-# Change Apache DocumentRoot to /var/www/html/web
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/web|' /etc/apache2/sites-available/000-default.conf \
- && echo '<Directory "/var/www/html/web">\n\tAllowOverride All\n\tRequire all granted\n</Directory>' >> /etc/apache2/apache2.conf
+# Install PHP dependencies fresh
+RUN composer install --optimize-autoloader
 
-# Set correct permissions
+# Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s \
-    CMD curl -f http://localhost || exit 1
+# Expose HTTP port
+EXPOSE 80
+
+# Start Apache in the foreground
+CMD ["apache2-foreground"]
