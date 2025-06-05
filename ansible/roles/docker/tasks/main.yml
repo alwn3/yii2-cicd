@@ -9,6 +9,13 @@
     name: docker-compose
     state: present
 
+- name: Add ubuntu user to docker group via shell
+  shell: |
+    usermod -aG docker ubuntu
+    id ubuntu
+  become: true
+
+
 - name: Enable and start Docker
   systemd:
     name: docker
@@ -19,6 +26,7 @@
   shell: docker swarm init || true
 
 - name: Deploy Yii2 App as Swarm Service
+  become: true
   shell: |
     docker service create --name yii2_app --publish 8080:80 \
     --replicas 1 --detach=true \
