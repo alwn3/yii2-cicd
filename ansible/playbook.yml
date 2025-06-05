@@ -1,6 +1,6 @@
 ---
 - name: Deploy Yii2 app
-  hosts: web
+  hosts: all
   become: true
   tasks:
     - name: Install required packages
