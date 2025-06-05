@@ -2,14 +2,9 @@ FROM php:8.2-apache
 
 # Install required system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
-<<<<<<< HEAD
     git zip unzip libzip-dev libpq-dev libonig-dev libicu-dev \
     && docker-php-ext-install pdo pdo_mysql zip mbstring intl \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-=======
-    git zip unzip libzip-dev libpq-dev libonig-dev curl \
-    && docker-php-ext-install pdo pdo_mysql zip
->>>>>>> 296efe8 (site worked in docker run expose)
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
