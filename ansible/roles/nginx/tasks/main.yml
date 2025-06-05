@@ -16,10 +16,20 @@
     state: link
     force: true
 
-- name: Remove default nginx site
-  file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
+- name: Force remove default NGINX site config
+  command: rm -f /etc/nginx/sites-available/default
+  args:
+    warn: false
+
+- name: Force remove default NGINX site symlink
+  command: rm -f /etc/nginx/sites-enabled/default
+  args:
+    warn: false
+
+- name: Reload NGINX to apply new config
+  service:
+    name: nginx
+    state: reloaded
 
 - name: Restart nginx
   service:

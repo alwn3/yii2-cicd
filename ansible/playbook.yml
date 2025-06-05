@@ -1,40 +1,79 @@
 ---
-- name: Deploy Yii2 app
+- name: Deploy Yii2 App with Docker and Nginx
   hosts: all
   become: true
+  vars:
+    nginx_conf_src: ../nginx/yii2.conf   # adjust path if needed
+
   tasks:
-    - name: Install required packages
+    - name: Update apt cache and install required packages
       apt:
         name:
           - docker.io
           - docker-compose
           - nginx
           - git
-        update_cache: true
+        update_cache: yes
         state: present
 
-    - name: Enable and start Docker
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Enable and start Docker service
       systemd:
         name: docker
-        enabled: true
         state: started
+        enabled: true
 
-    - name: Initialize Docker Swarm
-      shell: docker swarm init || true
+    - name: Initialize Docker Swarm (ignore error if already initialized)
+      shell: docker swarm init
+      register: swarm_init
+      failed_when: false
+      changed_when: "'Error response from daemon' not in swarm_init.stderr"
+
+    - name: Deploy Yii2 app as Docker Swarm service if not present
+      shell: |
+        if docker service ls --filter name=yii2_app --format '{{"{{"}}.Name{{"}}"}}' | grep -iq yii2_app; then
+          echo "Service yii2_app already exists"
+        else
+          docker service create --name yii2_app --publish 8080:80 \
+          --replicas 1 --restart-condition any \
+          alwn3/yii2-app:latest
+        fi
+      register: deploy_service
+      changed_when: "'Service yii2_app already exists' not in deploy_service.stdout"
+
+
 
     - name: Copy nginx config
       copy:
-        src: ../nginx/yii2.conf
+        src: "{{ nginx_conf_src }}"
         dest: /etc/nginx/sites-available/yii2.conf
+        owner: root
+        group: root
+        mode: '0644'
 
-    - name: Enable nginx site
+    - name: Enable nginx site by creating symlink
       file:
         src: /etc/nginx/sites-available/yii2.conf
         dest: /etc/nginx/sites-enabled/yii2.conf
         state: link
         force: true
 
-    - name: Restart nginx
+    - name: Remove default nginx site config file
+      file:
+        path: /etc/nginx/sites-available/default
+        state: absent
+
+    - name: Remove default nginx site symlink
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Restart nginx to apply configuration
       service:
         name: nginx
         state: restarted
