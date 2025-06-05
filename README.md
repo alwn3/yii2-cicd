@@ -24,14 +24,13 @@ This project demonstrates a complete CI/CD setup for a **Yii2 PHP application**,
 
 ### 🚀 Run Locally with Docker
 
-```bash
 git clone https://github.com/alwn3/yii2-cicd.git
 cd yii2-cicd
 docker-compose up --build -d
 
 Now visit: http://localhost:8080
 
-🐳 Dockerfile Overview
+### 🐳 Dockerfile Overview
 Path: docker/Dockerfile
 
 This Dockerfile builds an Apache + PHP 8.2 image with required PHP extensions, installs Composer, sets document root to /web, and installs Yii2 dependencies.
@@ -54,7 +53,7 @@ docker build -t alwn3/yii2-app:latest -f docker/Dockerfile .
 ⚙️ GitHub Actions: CI/CD Pipeline
 Path: .github/workflows/deploy.yml
 
-🔁 Workflow Summary
+### 🔁 Workflow Summary
 Checkout source code
 
 Build Docker image
@@ -67,17 +66,17 @@ Check if yii2_app service exists
 
 Create or update the Docker Swarm service
 
-🔐 Required GitHub Secrets
+### 🔐 Required GitHub Secrets
 Secret Name	Description
 DOCKERHUB_USERNAME	Your Docker Hub username
 DOCKERHUB_TOKEN	Docker Hub access token
 EC2_HOST	EC2 public IP or DNS
 EC2_SSH_KEY	Private key contents for EC2 SSH
 
-📦 Ansible Deployment
+### 📦 Ansible Deployment
 Path: ansible/playbook.yml
 
-📋 What It Does
+### 📋 What It Does
 Installs Docker, Nginx, and Git
 
 Initializes Docker Swarm
@@ -88,7 +87,7 @@ Configures Nginx with nginx/yii2.conf
 
 Enables the site and restarts Nginx
 
-🗂️ Inventory Example
+### 🗂️ Inventory Example
 Create ansible/inventory.yml:
 
 all:
@@ -100,13 +99,13 @@ all:
 
 The inventory.yml is added to .gitignore and wont be pushed to repo so the public IP wont be exposed
 
-▶️ Run the Playbook
+### ▶️ Run the Playbook
 
 ansible-playbook -i ansible/inventory.yml ansible/playbook.yml
 
 Ensure Nginx config file exists at nginx/yii2.conf
 
-🌐 Nginx Reverse Proxy Configuration
+### 🌐 Nginx Reverse Proxy Configuration
 Path: nginx/yii2.conf
 
 This config allows Nginx to proxy traffic to your Dockerized Yii2 app:
@@ -128,7 +127,7 @@ server {
 
 You can update server_name and ports if needed.
 
-🧠 Assumptions
+### 🧠 Assumptions
 EC2 instance is Ubuntu-based with SSH access
 
 Docker image is public at alwn3/yii2-app
@@ -137,7 +136,7 @@ Yii2 app is located under src/ and uses /web as the document root
 
 Docker Swarm is used (even for single-node deployments)
 
-✅ Remotely (GitHub Actions)
+### ✅ Remotely (GitHub Actions)
 Push to the main branch → GitHub Actions automatically:
 
 Builds the Docker image
