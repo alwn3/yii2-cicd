@@ -5,7 +5,7 @@ on:
       - main
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       IMAGE_NAME: alwn3/yii2-app
     steps:
